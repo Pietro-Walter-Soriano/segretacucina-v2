@@ -1,7 +1,7 @@
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
 import { MapPin, Phone, Menu as MenuIcon } from "lucide-react";
-import Stack from "./components/Stack";
+import PhotoStrip from "./components/PhotoStrip";
 
 /* Foto segnaposto — sostituire con foto reali del lido */
 const PH = (id: string, w = 700) =>
@@ -227,24 +227,14 @@ export default function App() {
         </div>
       </section>
 
-      {/* ===== MOMENTI (Stack su legno) ===== */}
-      <section id="momenti" className="relative wood-texture py-24 border-y-8 border-giallo">
-        <div className="absolute inset-0 bg-black/15" />
+      {/* ===== MOMENTI (carosello su legno estivo) ===== */}
+      <section id="momenti" className="relative wood-summer py-24 border-y-8 border-giallo overflow-hidden">
         <Reveal className="relative z-10 text-center mb-10 px-4">
-          <Titolo className="text-6xl md:text-7xl" parole={[{ t: "I nostri momenti", c: "text-bianco" }]} />
-          <p className="font-hand text-2xl text-giallo mt-2">trascina le foto 📸</p>
+          <Titolo className="text-6xl md:text-7xl" parole={[{ t: "I nostri momenti", c: "text-blu-scuro" }]} />
+          <p className="font-hand text-2xl text-azzurro-dark mt-2">i nostri scatti 📸</p>
         </Reveal>
-        <div className="relative z-10 flex justify-center pb-4">
-          <div className="w-[320px] h-[250px] md:w-[440px] md:h-[330px]">
-            <Stack
-              randomRotation
-              sensitivity={150}
-              sendToBackOnClick
-              cards={galleryPhotos.map((p) => (
-                <img key={p.alt} src={p.src} alt={p.alt} className="card-image" />
-              ))}
-            />
-          </div>
+        <div className="relative z-10">
+          <PhotoStrip photos={galleryPhotos} />
         </div>
       </section>
 

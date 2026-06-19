@@ -50,6 +50,27 @@
   border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
 }
 
+/* Legno ESTIVO "disegnato": assi color miele chiare (al posto del marrone invernale) */
+@utility wood-summer {
+  background-color: #d6a05f;
+  background-image:
+    repeating-linear-gradient(90deg, transparent 0 108px, rgba(120, 75, 35, 0.35) 108px 112px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 9px);
+}
+
+/* Carosello a scorrimento continuo (marquee), in pausa all'hover */
+@keyframes scroll-x {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee { overflow: hidden; }
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: scroll-x 40s linear infinite;
+}
+.marquee:hover .marquee-track { animation-play-state: paused; }
+
 @layer utilities {
   .glass-nav {
     background: rgba(255, 255, 255, 0.85);
