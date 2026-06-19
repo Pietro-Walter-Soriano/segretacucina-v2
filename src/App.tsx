@@ -1,10 +1,10 @@
-import { motion } from "motion/react";
+import { motion, useScroll, useTransform } from "motion/react";
+import { useRef } from "react";
 import { MapPin, Phone, Menu as MenuIcon } from "lucide-react";
 import Stack from "./components/Stack";
-import { Sun, Umbrella, Cloud, Fish, Star, Squiggle, Wave } from "./components/Doodles";
 
 /* Foto segnaposto — sostituire con foto reali del lido */
-const PH = (id: string, w = 600) =>
+const PH = (id: string, w = 700) =>
   `https://images.unsplash.com/photo-${id}?q=80&w=${w}&auto=format&fit=crop`;
 
 const galleryPhotos = [
@@ -60,8 +60,9 @@ function Pill({
   return (
     <motion.a
       href={href}
-      whileHover={{ scale: 1.08, rotate: -2 }}
-      whileTap={{ scale: 0.94, rotate: 2 }}
+      whileHover={{ scale: 1.06, y: -2 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
       className={`inline-block font-hand text-2xl px-7 py-2.5 rounded-full border-4 border-blu-scuro shadow-[3px_4px_0_rgba(74,51,32,0.9)] ${styles[color]}`}
     >
       {children}
@@ -69,7 +70,7 @@ function Pill({
   );
 }
 
-/* Titolo "marker" multicolore (una parola/riga per colore) */
+/* Titolo "marker" multicolore */
 function Titolo({ parole, className = "" }: { parole: { t: string; c: string }[]; className?: string }) {
   return (
     <h2 className={`font-display leading-[0.95] ${className}`}>
@@ -82,7 +83,70 @@ function Titolo({ parole, className = "" }: { parole: { t: string; c: string }[]
   );
 }
 
+/* Reveal elegante allo scroll (fade + slide-up, una volta sola) */
+function Reveal({
+  children,
+  className = "",
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}) {
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 36 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-90px" }}
+      transition={{ type: "spring", stiffness: 95, damping: 17, delay }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/* Foto circolare con parallasse morbida allo scroll + zoom dolce all'hover */
+function ParallaxCircle({
+  src,
+  alt,
+  className = "",
+  rot = "0deg",
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  rot?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], [34, -34]);
+
+  return (
+    <motion.div
+      ref={ref}
+      style={{ y, rotate: rot }}
+      className={`rounded-full overflow-hidden border-8 border-bianco shadow-[6px_8px_0_rgba(74,51,32,0.9)] ${className}`}
+    >
+      <motion.img
+        src={src}
+        alt={alt}
+        loading="lazy"
+        decoding="async"
+        className="w-full h-full object-cover"
+        whileHover={{ scale: 1.08 }}
+        transition={{ type: "spring", stiffness: 200, damping: 18 }}
+      />
+    </motion.div>
+  );
+}
+
 export default function App() {
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress: heroP } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroY = useTransform(heroP, [0, 1], ["0%", "16%"]);
+  const heroScale = useTransform(heroP, [0, 1], [1.08, 1.16]);
+
   return (
     <div className="bg-bianco text-blu-scuro overflow-x-hidden font-sans">
       {/* ===== NAV ===== */}
@@ -103,24 +167,33 @@ export default function App() {
         </div>
       </nav>
 
-      {/* ===== HERO ===== */}
-      <header className="relative w-full">
-        <div className="relative">
-          <img src="/sfondo-segreta.jpg" alt="SeGreta disegno" className="w-full h-[78vh] object-cover" />
-          <Sun className="absolute top-6 left-6 w-16 h-16 text-bianco float-anim drop-shadow" />
-          <Cloud className="absolute top-10 right-10 w-24 h-16 text-bianco/90 float-anim" />
-          <Umbrella className="absolute bottom-32 left-10 w-16 h-16 text-corallo float-anim hidden md:block" />
-
-          {/* L'illustrazione contiene già il titolo "2 giugno SeGreta riapre":
-              niente titolo sovrapposto, solo sottotitolo + CTA in basso. */}
+      {/* ===== HERO (illustrazione con leggera parallasse) ===== */}
+      <header ref={heroRef} className="relative w-full">
+        <div className="relative h-[78vh] overflow-hidden">
+          <motion.img
+            src="/sfondo-segreta.jpg"
+            alt="SeGreta disegno"
+            style={{ y: heroY, scale: heroScale }}
+            className="w-full h-full object-cover"
+          />
           <div className="absolute inset-0 flex flex-col items-center justify-end text-center px-4 pb-10 md:pb-14">
-            <p className="font-hand text-2xl md:text-3xl bg-bianco/90 px-5 py-1.5 rounded-2xl border-2 border-blu-scuro shadow-[2px_3px_0_rgba(74,51,32,0.7)]">
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 90, damping: 15 }}
+              className="font-hand text-2xl md:text-3xl bg-bianco/90 px-5 py-1.5 rounded-2xl border-2 border-blu-scuro shadow-[2px_3px_0_rgba(74,51,32,0.7)]"
+            >
               Il lido di campagna, sul mare 🌅
-            </p>
-            <div className="flex flex-wrap gap-4 justify-center mt-5">
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35, type: "spring", stiffness: 90, damping: 15 }}
+              className="flex flex-wrap gap-4 justify-center mt-5"
+            >
               <Pill color="giallo" href="#aree">Scopri il lido</Pill>
               <Pill color="corallo" href="#contatti">Prenota un lettino</Pill>
-            </div>
+            </motion.div>
           </div>
         </div>
         <svg className="block w-full h-12 md:h-20 -mt-1 fill-giallo" viewBox="0 0 1200 120" preserveAspectRatio="none">
@@ -128,12 +201,10 @@ export default function App() {
         </svg>
       </header>
 
-      {/* ===== INTRO (sunburst) ===== */}
-      <section className="relative bg-giallo sunburst overflow-hidden py-20">
-        <Star className="absolute top-8 right-12 w-14 h-14 text-corallo float-anim" />
-        <Fish className="absolute bottom-10 left-8 w-24 h-14 text-azzurro-dark float-anim hidden md:block" />
-        <div className="relative max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
-          <div>
+      {/* ===== INTRO ===== */}
+      <section className="relative bg-giallo overflow-hidden py-24">
+        <div className="relative max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+          <Reveal>
             <Titolo
               className="text-6xl md:text-7xl"
               parole={[
@@ -149,23 +220,20 @@ export default function App() {
             <div className="mt-7">
               <Pill color="azzurro" href="#momenti">Guarda i momenti</Pill>
             </div>
-          </div>
-          <div className="relative flex justify-center">
-            <div className="w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-8 border-bianco shadow-[6px_8px_0_rgba(74,51,32,0.9)] rotate-3">
-              <img src="/sunset.jpg" alt="Tramonto a SeGreta" className="w-full h-full object-cover" loading="lazy" decoding="async" />
-            </div>
-            <Squiggle className="absolute -bottom-4 -left-2 w-32 h-8 text-azzurro-dark" />
+          </Reveal>
+          <div className="flex justify-center">
+            <ParallaxCircle src="/sunset.jpg" alt="Tramonto a SeGreta" rot="3deg" className="w-64 h-64 md:w-80 md:h-80" />
           </div>
         </div>
       </section>
 
       {/* ===== MOMENTI (Stack su legno) ===== */}
-      <section id="momenti" className="relative wood-texture py-20 border-y-8 border-giallo">
+      <section id="momenti" className="relative wood-texture py-24 border-y-8 border-giallo">
         <div className="absolute inset-0 bg-black/15" />
-        <div className="relative z-10 text-center mb-10 px-4">
+        <Reveal className="relative z-10 text-center mb-10 px-4">
           <Titolo className="text-6xl md:text-7xl" parole={[{ t: "I nostri momenti", c: "text-bianco" }]} />
           <p className="font-hand text-2xl text-giallo mt-2">trascina le foto 📸</p>
-        </div>
+        </Reveal>
         <div className="relative z-10 flex justify-center pb-4">
           <div className="w-[320px] h-[250px] md:w-[440px] md:h-[330px]">
             <Stack
@@ -181,28 +249,20 @@ export default function App() {
       </section>
 
       {/* ===== LE AREE ===== */}
-      <section id="aree" className="relative bg-bianco dots text-azzurro/10 py-20">
-        <div className="relative max-w-6xl mx-auto px-6">
+      <section id="aree" className="relative bg-bianco py-24">
+        <Reveal>
           <Titolo className="text-6xl md:text-7xl text-center mb-14" parole={[{ t: "Esplora SeGreta", c: "text-corallo" }]} />
-          <div className="space-y-12">
-            {aree.map((a, i) => (
-              <motion.div
-                key={a.titolo}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={{ type: "spring", stiffness: 90, damping: 14 }}
+        </Reveal>
+        <div className="max-w-6xl mx-auto px-6 space-y-12">
+          {aree.map((a, i) => (
+            <Reveal key={a.titolo}>
+              <div
                 className={`${a.bg} doodle-border border-4 border-blu-scuro shadow-[6px_8px_0_rgba(74,51,32,0.9)] p-6 md:p-10 flex flex-col ${
                   i % 2 ? "md:flex-row-reverse" : "md:flex-row"
                 } items-center gap-8`}
               >
                 <div className="shrink-0">
-                  <div
-                    className="w-44 h-44 md:w-60 md:h-60 rounded-full overflow-hidden border-8 border-bianco shadow-lg"
-                    style={{ rotate: a.rot }}
-                  >
-                    <img src={a.img} alt={a.titolo} className="w-full h-full object-cover" loading="lazy" decoding="async" />
-                  </div>
+                  <ParallaxCircle src={a.img} alt={a.titolo} rot={a.rot} className="w-44 h-44 md:w-60 md:h-60" />
                 </div>
                 <div className={`text-center ${i % 2 ? "md:text-right" : "md:text-left"}`}>
                   <h3 className="font-display text-5xl md:text-6xl text-blu-scuro">{a.titolo}</h3>
@@ -211,37 +271,39 @@ export default function App() {
                     <Pill color="bianco">{a.cta}</Pill>
                   </div>
                 </div>
-              </motion.div>
-            ))}
-          </div>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </section>
 
       {/* ===== CONTATTI / CTA ===== */}
-      <section id="contatti" className="relative bg-azzurro sunburst overflow-hidden py-20">
-        <Sun className="absolute top-8 left-10 w-16 h-16 text-giallo float-anim" />
-        <Wave className="absolute bottom-10 right-8 w-40 h-12 text-bianco float-anim" />
+      <section id="contatti" className="relative bg-azzurro overflow-hidden py-24">
         <div className="relative max-w-4xl mx-auto px-6 text-center">
-          <Titolo
-            className="text-6xl md:text-8xl"
-            parole={[
-              { t: "Ti aspettiamo", c: "text-bianco" },
-              { t: "a SeGreta!", c: "text-giallo" },
-            ]}
-          />
-          <div className="flex flex-col md:flex-row gap-5 justify-center mt-10">
-            <div className="bg-bianco border-4 border-blu-scuro rounded-3xl px-6 py-4 flex items-center gap-3 shadow-[4px_5px_0_rgba(74,51,32,0.9)]">
-              <MapPin className="text-corallo shrink-0" />
-              <span className="font-hand text-xl text-left">Panoramica U. Paternostro 16, Bisceglie (BT)</span>
+          <Reveal>
+            <Titolo
+              className="text-6xl md:text-8xl"
+              parole={[
+                { t: "Ti aspettiamo", c: "text-bianco" },
+                { t: "a SeGreta!", c: "text-giallo" },
+              ]}
+            />
+          </Reveal>
+          <Reveal delay={0.1}>
+            <div className="flex flex-col md:flex-row gap-5 justify-center mt-10">
+              <div className="bg-bianco border-4 border-blu-scuro rounded-3xl px-6 py-4 flex items-center gap-3 shadow-[4px_5px_0_rgba(74,51,32,0.9)]">
+                <MapPin className="text-corallo shrink-0" />
+                <span className="font-hand text-xl text-left">Panoramica U. Paternostro 16, Bisceglie (BT)</span>
+              </div>
+              <div className="bg-bianco border-4 border-blu-scuro rounded-3xl px-6 py-4 flex items-center gap-3 shadow-[4px_5px_0_rgba(74,51,32,0.9)]">
+                <Phone className="text-azzurro-dark shrink-0" />
+                <span className="font-hand text-xl">+39 083 456 7890</span>
+              </div>
             </div>
-            <div className="bg-bianco border-4 border-blu-scuro rounded-3xl px-6 py-4 flex items-center gap-3 shadow-[4px_5px_0_rgba(74,51,32,0.9)]">
-              <Phone className="text-azzurro-dark shrink-0" />
-              <span className="font-hand text-xl">+39 083 456 7890</span>
+            <div className="mt-9">
+              <Pill color="corallo">Prenota ora</Pill>
             </div>
-          </div>
-          <div className="mt-9">
-            <Pill color="corallo">Prenota ora</Pill>
-          </div>
+          </Reveal>
         </div>
       </section>
 
