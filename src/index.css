@@ -50,24 +50,6 @@
   border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
 }
 
-/* Raggi di sole (per lo showcase interattivo che segue il mouse) */
-@utility rays {
-  background-image: repeating-conic-gradient(
-    from 0deg,
-    var(--color-giallo) 0deg 5deg,
-    transparent 5deg 13deg
-  );
-  border-radius: 9999px;
-}
-@utility rays-2 {
-  background-image: repeating-conic-gradient(
-    from 4deg,
-    var(--color-corallo) 0deg 3deg,
-    transparent 3deg 17deg
-  );
-  border-radius: 9999px;
-}
-
 @layer utilities {
   .glass-nav {
     background: rgba(255, 255, 255, 0.85);
