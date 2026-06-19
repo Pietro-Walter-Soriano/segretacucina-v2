@@ -71,20 +71,50 @@
 }
 .marquee:hover .marquee-track { animation-play-state: paused; }
 
-/* Tende disegnate a mano (effetto reveal in home) */
-.curtain {
-  background-color: var(--color-corallo);
-  background-image: repeating-linear-gradient(
-    90deg,
-    rgba(0, 0, 0, 0.2) 0 5px,
-    rgba(255, 255, 255, 0.06) 5px 9px,
-    rgba(0, 0, 0, 0) 9px 36px
-  );
-  box-shadow: inset 0 0 70px rgba(0, 0, 0, 0.3);
+/* Tenda indiana (teepee): lembi che si aprono. Bande crema/terracotta come la
+   tela vera, con pieghe verticali morbide. */
+.teepee-flap {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background-image:
+    /* pieghe verticali della tela */
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.07) 0 2px, rgba(255, 255, 255, 0.05) 2px 4px, transparent 4px 40px),
+    /* bande: terracotta in cima, crema al centro, terracotta in basso */
+    linear-gradient(
+      to bottom,
+      #b85a37 0 8%,
+      #ffffff 8% 9.4%,
+      #ecd9a4 9.4% 69%,
+      #ffffff 69% 70.4%,
+      #b85a37 70.4% 100%
+    );
   will-change: transform;
 }
-.curtain-left { border-right: 5px solid var(--color-blu-scuro); }
-.curtain-right { border-left: 5px solid var(--color-blu-scuro); }
+/* pois bianchi nella banda terracotta in basso */
+.teepee-flap-dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 29%;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.9) 3px, transparent 3.6px);
+  background-size: 48px 48px;
+  background-position: center;
+}
+/* allacciatura (punti bianchi) lungo la cucitura centrale */
+.teepee-lacing {
+  position: absolute;
+  top: 12%;
+  width: 14px;
+  height: 26%;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    #ffffff 0 4px,
+    transparent 4px 16px
+  );
+}
 
 @layer utilities {
   .glass-nav {

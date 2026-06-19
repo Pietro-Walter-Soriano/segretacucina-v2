@@ -1,6 +1,5 @@
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
-import { Link } from "react-router-dom";
 
 /* ---- Dati ---- */
 export const PH = (id: string, w = 700) =>
@@ -16,14 +15,16 @@ export const galleryPhotos = [
 
 export const aree = [
   {
+    id: "food",
     titolo: "Food & Drink",
     testo: "Sapore di mare, street food e cocktail fatti come a casa. Niente di finto, solo cose buone.",
     img: PH("1559339352-11d035aa65de"),
-    cta: "Il menu",
+    cta: "Il menù",
     bg: "bg-giallo",
     rot: "-3deg",
   },
   {
+    id: "spiaggia",
     titolo: "Spiaggia & Lido",
     testo: "Ombra, lettini e il rumore del mare. Un posto semplice dove staccare davvero la spina.",
     img: PH("1519046904884-53103b34b206"),
@@ -32,6 +33,7 @@ export const aree = [
     rot: "2.5deg",
   },
   {
+    id: "eventi",
     titolo: "Tramonti & Eventi",
     testo: "Quando cala il sole arriva la musica. Aperitivi sul prato e serate sotto le stelle.",
     img: PH("1507525428034-b723cf961d3e"),
@@ -41,8 +43,7 @@ export const aree = [
   },
 ];
 
-/* ---- Bottone a pillola (link interno con `to`, oppure ancora con `href`) ---- */
-const MotionLink = motion(Link);
+/* ---- Bottone a pillola (ancora interna alla pagina) ---- */
 type PillColor = "giallo" | "azzurro" | "corallo" | "bianco";
 const pillStyles: Record<PillColor, string> = {
   giallo: "bg-giallo text-blu-scuro",
@@ -54,23 +55,24 @@ const pillStyles: Record<PillColor, string> = {
 export function Pill({
   children,
   color = "giallo",
-  href,
-  to,
+  href = "#",
 }: {
   children: React.ReactNode;
   color?: PillColor;
   href?: string;
-  to?: string;
 }) {
   const cls = `inline-block font-hand text-2xl px-7 py-2.5 rounded-full border-4 border-blu-scuro shadow-[3px_4px_0_rgba(74,51,32,0.9)] ${pillStyles[color]}`;
-  const props = {
-    whileHover: { scale: 1.06, y: -2 },
-    whileTap: { scale: 0.95 },
-    transition: { type: "spring" as const, stiffness: 400, damping: 17 },
-    className: cls,
-  };
-  if (to) return <MotionLink to={to} {...props}>{children}</MotionLink>;
-  return <motion.a href={href || "#"} {...props}>{children}</motion.a>;
+  return (
+    <motion.a
+      href={href}
+      whileHover={{ scale: 1.06, y: -2 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+      className={cls}
+    >
+      {children}
+    </motion.a>
+  );
 }
 
 /* ---- Titolo marker multicolore ---- */
@@ -148,14 +150,14 @@ export function Nav() {
   return (
     <nav className="sticky top-0 z-50 bg-bianco/95 border-b-4 border-blu-scuro">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
+        <a href="#top" className="flex items-center gap-2">
           <img src="/logo.png" alt="SeGreta" className="h-12 w-auto" />
           <span className="font-display text-3xl text-azzurro-dark">SeGreta</span>
-        </Link>
+        </a>
         <div className="hidden md:flex items-center gap-3">
-          <Pill color="bianco" to="/esplora#momenti">Gallery</Pill>
-          <Pill color="azzurro" to="/esplora#info">Info</Pill>
-          <Pill color="giallo" to="/esplora#contatti">Contatti</Pill>
+          <Pill color="bianco" href="#food">Menù</Pill>
+          <Pill color="azzurro" href="#eventi">Eventi</Pill>
+          <Pill color="giallo" href="#contatti">Prenota</Pill>
         </div>
       </div>
     </nav>
