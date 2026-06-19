@@ -1,0 +1,80 @@
+@import "tailwindcss";
+
+@theme {
+  /* Palette: giallo + azzurro + legno (le sezioni scure usano il legno) */
+  --color-azzurro: #3db0d6; /* azzurro mare/cielo, vivido ma non neon */
+  --color-azzurro-dark: #2a7e9c;
+  --color-giallo: #f8ce3c; /* giallo sole caldo */
+  --color-giallo-dark: #e2ae2c;
+  --color-bianco: #faf6ee; /* bianco caldo / sabbia chiara */
+  --color-blu-scuro: #4a3320; /* LEGNO scuro: testo + sfondi sezioni scure */
+  --color-legno: #9b6a3f; /* legno medio (accenti) */
+  --color-legno-scuro: #5c3d22;
+  --color-sabbia: #eadfc8;
+
+  --color-corallo: #e2613e; /* accento caldo (cocomero/terracotta) */
+  --color-verde: #7ba84e; /* verde campagna */
+
+  --font-serif: "Fredoka", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Fredoka", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Permanent Marker", "Fredoka", cursive; /* titoloni "marker" */
+  --font-hand: "Patrick Hand", "Fredoka", cursive; /* scritte a mano */
+}
+
+/* Texture legno per le superfici scure (tavolo "della nonna") */
+.wood-texture {
+  background-image: url("https://www.transparenttextures.com/patterns/purty-wood.png");
+  background-color: var(--color-blu-scuro);
+}
+
+@utility font-display { font-family: var(--font-display); }
+@utility font-hand { font-family: var(--font-hand); }
+
+/* Sfondo a raggi (sunburst) stile pop */
+@utility sunburst {
+  background-image: repeating-conic-gradient(
+    from 0deg,
+    color-mix(in srgb, var(--color-giallo) 55%, transparent) 0deg 6deg,
+    transparent 6deg 12deg
+  );
+}
+
+/* Retino a pois (halftone) */
+@utility dots {
+  background-image: radial-gradient(currentColor 2px, transparent 2.5px);
+  background-size: 18px 18px;
+}
+
+/* Bordo "disegnato a mano" leggermente irregolare */
+@utility doodle-border {
+  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+}
+
+@layer utilities {
+  .glass-nav {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 4px solid var(--color-giallo);
+  }
+}
+
+/* Playful bouncy shapes */
+@keyframes fluidShape {
+  0% { border-radius: 40% 60% 60% 40% / 60% 30% 70% 40%; }
+  50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+  100% { border-radius: 40% 60% 60% 40% / 60% 30% 70% 40%; }
+}
+
+@keyframes floatUpDown {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-15px) rotate(2deg); }
+}
+
+.organic-shape {
+  animation: fluidShape 8s ease-in-out infinite;
+}
+
+.float-anim {
+  animation: floatUpDown 4s ease-in-out infinite;
+}

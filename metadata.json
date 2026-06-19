@@ -1,0 +1,8 @@
+{
+  "name": "SeGreta Cucina",
+  "description": "A trendy, premium summer beach bar, lido, and restaurant. A sleek landing page built with pure HTML, CSS, and Vanilla JavaScript with striking animations.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
