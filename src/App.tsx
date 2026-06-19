@@ -1,7 +1,8 @@
 import { motion } from "motion/react";
 import { MapPin, Phone, Menu as MenuIcon } from "lucide-react";
 import Stack from "./components/Stack";
-import { Sun, Umbrella, Cloud, Fish, Star, Squiggle, Wave } from "./components/Doodles";
+import RayShowcase from "./components/RayShowcase";
+import { Sun, Umbrella, Cloud, Fish, Star, Wave } from "./components/Doodles";
 
 /* Foto segnaposto — sostituire con foto reali del lido */
 const PH = (id: string, w = 600) =>
@@ -128,33 +129,28 @@ export default function App() {
         </svg>
       </header>
 
-      {/* ===== INTRO (sunburst) ===== */}
-      <section className="relative bg-giallo sunburst overflow-hidden py-20">
-        <Star className="absolute top-8 right-12 w-14 h-14 text-corallo float-anim" />
-        <Fish className="absolute bottom-10 left-8 w-24 h-14 text-azzurro-dark float-anim hidden md:block" />
-        <div className="relative max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-10 items-center">
-          <div>
-            <Titolo
-              className="text-6xl md:text-7xl"
-              parole={[
-                { t: "Lontano", c: "text-azzurro-dark" },
-                { t: "dal mondo", c: "text-corallo" },
-                { t: "commerciale", c: "text-blu-scuro" },
-              ]}
-            />
-            <p className="font-hand text-2xl md:text-3xl mt-6 max-w-md">
-              Tavoli di legno della nonna, prato verde, i piedi nella sabbia. A SeGreta si rallenta:
-              niente luci finte, solo natura, mare e gente che ride.
-            </p>
-            <div className="mt-7">
-              <Pill color="azzurro" href="#momenti">Guarda i momenti</Pill>
-            </div>
+      {/* ===== SHOWCASE INTERATTIVO (raggi + foto che seguono il mouse) ===== */}
+      <section className="relative bg-azzurro overflow-hidden py-20">
+        <Star className="absolute top-8 right-12 w-14 h-14 text-giallo float-anim" />
+        <Fish className="absolute bottom-10 left-8 w-24 h-14 text-bianco float-anim hidden md:block" />
+        <div className="relative max-w-4xl mx-auto px-6 flex flex-col items-center text-center">
+          <Titolo
+            className="text-6xl md:text-7xl"
+            parole={[
+              { t: "Lontano dal", c: "text-bianco" },
+              { t: "mondo commerciale", c: "text-giallo" },
+            ]}
+          />
+          <div className="my-10">
+            <RayShowcase src="/sunset.jpg" alt="Tramonto a SeGreta" />
           </div>
-          <div className="relative flex justify-center">
-            <div className="w-64 h-64 md:w-80 md:h-80 rounded-full overflow-hidden border-8 border-bianco shadow-[6px_8px_0_rgba(74,51,32,0.9)] rotate-3">
-              <img src="/sunset.jpg" alt="Tramonto a SeGreta" className="w-full h-full object-cover" loading="lazy" decoding="async" />
-            </div>
-            <Squiggle className="absolute -bottom-4 -left-2 w-32 h-8 text-azzurro-dark" />
+          <p className="font-hand text-2xl md:text-3xl max-w-xl text-bianco">
+            Tavoli di legno della nonna, prato verde, i piedi nella sabbia. A SeGreta si rallenta:
+            niente luci finte, solo natura, mare e gente che ride.
+          </p>
+          <p className="font-hand text-lg text-bianco/80 mt-2">muovi il mouse sulla foto ✨</p>
+          <div className="mt-6">
+            <Pill color="giallo" href="#momenti">Guarda i momenti</Pill>
           </div>
         </div>
       </section>
