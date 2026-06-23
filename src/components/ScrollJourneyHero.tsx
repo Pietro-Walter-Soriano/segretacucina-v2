@@ -49,15 +49,19 @@ export default function ScrollJourneyHero() {
       ctx.drawImage(im, (cw - w) / 2, (ch - h) / 2, w, h);
     };
     const fit = () => {
-      canvas.width = Math.floor(window.innerWidth * dpr);
-      canvas.height = Math.floor(window.innerHeight * dpr);
-      canvas.style.width = window.innerWidth + "px";
-      canvas.style.height = window.innerHeight + "px";
+      // dimensiona il backing store sull'ELEMENTO (riempie la sezione 100vh via
+      // CSS w-full h-full), NON su window.innerHeight: così su mobile, quando la
+      // barra del browser si nasconde, il canvas resta sempre coperto (niente
+      // striscia marrone in basso).
+      const w = canvas.clientWidth || window.innerWidth;
+      const h = canvas.clientHeight || window.innerHeight;
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
       draw(current);
     };
 
     // caricamento sequenziale a finestra
-    const CONCURRENCY = 6;
+    const CONCURRENCY = 10;
     let loaded = 0, nextToLoad = 0;
     const loadNext = () => {
       if (nextToLoad >= FRAME_COUNT) return;
@@ -67,7 +71,7 @@ export default function ScrollJourneyHero() {
       const done = () => {
         loaded++;
         if (i === 0) fit();
-        if (loaded === Math.min(14, FRAME_COUNT)) setReady(true);
+        if (loaded === Math.min(30, FRAME_COUNT)) setReady(true);
         if (loaded >= FRAME_COUNT) ScrollTrigger.refresh();
         draw(current);
         loadNext();
@@ -77,7 +81,8 @@ export default function ScrollJourneyHero() {
       im.src = frameSrc(i);
     };
     for (let c = 0; c < CONCURRENCY; c++) loadNext();
-    window.addEventListener("resize", fit);
+    const onResize = () => { fit(); ScrollTrigger.refresh(); };
+    window.addEventListener("resize", onResize);
 
     const proxy = { f: 0 };
     const RUNWAY = GATE * 15; // scroll per arrivare al cancello
@@ -117,7 +122,7 @@ export default function ScrollJourneyHero() {
     };
 
     return () => {
-      window.removeEventListener("resize", fit);
+      window.removeEventListener("resize", onResize);
       document.body.style.overflow = "";
       gctx.revert();
     };
