@@ -1,5 +1,6 @@
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef } from "react";
+import { Link } from "react-router-dom";
 
 /* ---- Dati ---- */
 export const PH = (id: string, w = 700) =>
@@ -52,27 +53,28 @@ const pillStyles: Record<PillColor, string> = {
   bianco: "bg-bianco text-blu-scuro",
 };
 
+const MotionLink = motion(Link);
+
 export function Pill({
   children,
   color = "giallo",
-  href = "#",
+  href,
+  to,
 }: {
   children: React.ReactNode;
   color?: PillColor;
   href?: string;
+  to?: string;
 }) {
   const cls = `inline-block font-hand text-2xl px-7 py-2.5 rounded-full border-4 border-blu-scuro shadow-[3px_4px_0_rgba(74,51,32,0.9)] ${pillStyles[color]}`;
-  return (
-    <motion.a
-      href={href}
-      whileHover={{ scale: 1.06, y: -2 }}
-      whileTap={{ scale: 0.95 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
-      className={cls}
-    >
-      {children}
-    </motion.a>
-  );
+  const anim = {
+    whileHover: { scale: 1.06, y: -2 },
+    whileTap: { scale: 0.95 },
+    transition: { type: "spring" as const, stiffness: 400, damping: 17 },
+    className: cls,
+  };
+  if (to) return <MotionLink to={to} {...anim}>{children}</MotionLink>;
+  return <motion.a href={href || "#"} {...anim}>{children}</motion.a>;
 }
 
 /* ---- Titolo marker multicolore ---- */
@@ -145,19 +147,19 @@ export function ParallaxCircle({
   );
 }
 
-/* ---- Nav condivisa ---- */
+/* ---- Nav delle pagine (logo torna alla home/journey) ---- */
 export function Nav() {
   return (
     <nav className="sticky top-0 z-50 bg-bianco/95 border-b-4 border-blu-scuro">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-        <a href="#top" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <img src="/logo.png" alt="SeGreta" className="h-12 w-auto" />
           <span className="font-display text-3xl text-azzurro-dark">SeGreta</span>
-        </a>
+        </Link>
         <div className="hidden md:flex items-center gap-3">
-          <Pill color="bianco" href="#food">Menù</Pill>
-          <Pill color="azzurro" href="#eventi">Eventi</Pill>
-          <Pill color="giallo" href="#contatti">Prenota</Pill>
+          <Pill color="bianco" to="/info">Info</Pill>
+          <Pill color="azzurro" to="/eventi">Eventi</Pill>
+          <Pill color="giallo" to="/prenota">Prenota</Pill>
         </div>
       </div>
     </nav>

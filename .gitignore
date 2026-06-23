@@ -6,3 +6,8 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# generati localmente, non per il deploy
+.tmp/
+.playwright-mcp/
+*.jpeg
