@@ -55,7 +55,8 @@ export default function ScrollJourneyHero() {
       const im = images[i];
       const cw = canvas.width, ch = canvas.height;
       if (!cw || !ch) return;
-      const s = Math.max(cw / im.naturalWidth, ch / im.naturalHeight);
+      // sovra-scala ~1.2% per evitare righe sottili ai bordi (cover senza seam)
+      const s = Math.max(cw / im.naturalWidth, ch / im.naturalHeight) * 1.012;
       const w = im.naturalWidth * s, h = im.naturalHeight * s;
       ctx.drawImage(im, (cw - w) / 2, (ch - h) / 2, w, h);
     };
@@ -173,7 +174,7 @@ export default function ScrollJourneyHero() {
     <>
       <div
         className="fixed left-0 top-0 z-0 w-full overflow-hidden bg-blu-scuro"
-        style={{ height: "calc(100dvh + 4px)" }}
+        style={{ height: "calc(100lvh + 6px)" }}
       >
         <canvas ref={canvasRef} className="absolute inset-0 block w-full h-full" />
 
@@ -214,7 +215,7 @@ export default function ScrollJourneyHero() {
                   <path d="M100 8 L46 54 M100 8 L154 54" stroke="#7a4a23" strokeWidth="5" strokeLinecap="round" fill="none" />
                 </svg>
                 <div className="legno-sign doodle-border -mt-2 px-8 py-3 md:px-10 md:py-4">
-                  <span className="font-display text-5xl md:text-7xl text-bianco drop-shadow-[2px_3px_0_rgba(0,0,0,0.45)]">
+                  <span className="font-display text-5xl md:text-7xl text-bianco">
                     Benvenuti!
                   </span>
                 </div>
