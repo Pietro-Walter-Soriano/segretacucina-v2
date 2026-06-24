@@ -28,6 +28,7 @@ export default function ScrollJourneyHero() {
   const [ready, setReady] = useState(false);
   const [atGate, setAtGate] = useState(false);
   const [waiting, setWaiting] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [phase, setPhase] = useState<"approach" | "entering" | "arrived">(enteredInit ? "arrived" : "approach");
   const [spacer, setSpacer] = useState(enteredInit ? 0 : RUNWAY + 900);
 
@@ -123,6 +124,7 @@ export default function ScrollJourneyHero() {
 
     const onScroll = () => {
       if (entered) return;
+      if (window.scrollY > 40) setScrolled(true);
       const p = Math.min(1, Math.max(0, window.scrollY / RUNWAY));
       target = p * GATE;
     };
@@ -180,9 +182,10 @@ export default function ScrollJourneyHero() {
 
         <img src="/logo.png" alt="SeGreta" className="absolute top-4 left-4 z-20 h-12 w-auto drop-shadow" />
 
-        {phase === "approach" && !atGate && ready && !waiting && (
-          <div className="absolute bottom-10 left-1/2 z-10 -translate-x-1/2 animate-bounce">
-            <div className="h-5 w-5 rotate-45 border-b-4 border-r-4 border-bianco/90" />
+        {phase === "approach" && !atGate && ready && !waiting && !scrolled && (
+          <div className="absolute bottom-12 left-1/2 z-10 -translate-x-1/2 flex flex-col items-center gap-2 text-bianco drop-shadow-[1px_2px_3px_rgba(0,0,0,0.6)] animate-bounce">
+            <span className="font-hand text-2xl">scrolla</span>
+            <div className="h-5 w-5 rotate-45 border-b-4 border-r-4 border-bianco" />
           </div>
         )}
 
