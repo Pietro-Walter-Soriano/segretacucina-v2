@@ -1,0 +1,14 @@
+{
+  "name": "SeGreta Cucina & Lido",
+  "short_name": "SeGreta",
+  "description": "Il lido di campagna, sul mare.",
+  "start_url": "/",
+  "display": "fullscreen",
+  "orientation": "portrait",
+  "background_color": "#3db0d6",
+  "theme_color": "#3db0d6",
+  "icons": [
+    { "src": "/logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
