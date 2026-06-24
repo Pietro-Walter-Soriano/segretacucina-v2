@@ -99,10 +99,14 @@ export default function ScrollJourneyHero() {
 
     const onResizeBase = () => fit();
     window.addEventListener("resize", onResizeBase);
+    window.visualViewport?.addEventListener("resize", onResizeBase);
 
     // ===== modalità "già entrato": solo finale statico =====
     if (entered) {
-      return () => { window.removeEventListener("resize", onResizeBase); };
+      return () => {
+        window.removeEventListener("resize", onResizeBase);
+        window.visualViewport?.removeEventListener("resize", onResizeBase);
+      };
     }
 
     // ===== modalità journey (avvicinamento) =====
@@ -160,13 +164,17 @@ export default function ScrollJourneyHero() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("resize", onResizeBase);
+      window.visualViewport?.removeEventListener("resize", onResizeBase);
       document.body.style.overflow = "";
     };
   }, []);
 
   return (
     <>
-      <div className="fixed inset-0 z-0 overflow-hidden bg-blu-scuro">
+      <div
+        className="fixed left-0 top-0 z-0 w-full overflow-hidden bg-blu-scuro"
+        style={{ height: "calc(100dvh + 4px)" }}
+      >
         <canvas ref={canvasRef} className="absolute inset-0 block w-full h-full" />
 
         <img src="/logo.png" alt="SeGreta" className="absolute top-4 left-4 z-20 h-12 w-auto drop-shadow" />
