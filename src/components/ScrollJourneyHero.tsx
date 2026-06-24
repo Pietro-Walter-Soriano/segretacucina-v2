@@ -113,11 +113,12 @@ export default function ScrollJourneyHero() {
 
     // ===== modalità journey (avvicinamento) =====
     const tick = () => {
-      if (!entered) {
+      if (entered) return; // dopo l'ingresso il loop si ferma (niente rAF a vuoto)
+      if (Math.abs(target - current) > 0.04) {
         current += (target - current) * 0.16;
-        draw(current);
-        setAtGate(target >= GATE - 1);
+        draw(current); // ridisegna solo quando il frame cambia davvero
       }
+      setAtGate(target >= GATE - 1);
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
