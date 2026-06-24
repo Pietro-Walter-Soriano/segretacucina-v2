@@ -222,11 +222,28 @@ export default function ScrollJourneyHero() {
               </motion.div>
             </motion.div>
 
-            <div className="absolute inset-x-0 bottom-[14%] z-10 flex flex-wrap items-center justify-center gap-4 px-4">
-              <Pill color="corallo" to="/prenota">Prenota</Pill>
-              <Pill color="azzurro" to="/eventi">Eventi</Pill>
-              <Pill color="bianco" to="/info">Info</Pill>
-            </div>
+            <motion.div
+              className="absolute inset-x-0 bottom-[14%] z-10 flex flex-wrap items-center justify-center gap-4 px-4"
+              initial="hidden"
+              animate="show"
+              variants={{ hidden: {}, show: { transition: { delayChildren: 0.4, staggerChildren: 0.14 } } }}
+            >
+              {[
+                { c: "corallo" as const, to: "/prenota", t: "Prenota" },
+                { c: "azzurro" as const, to: "/eventi", t: "Eventi" },
+                { c: "bianco" as const, to: "/info", t: "Info" },
+              ].map((b) => (
+                <motion.div
+                  key={b.to}
+                  variants={{
+                    hidden: { scale: 0, opacity: 0, y: 24 },
+                    show: { scale: 1, opacity: 1, y: 0, transition: { type: "spring", stiffness: 420, damping: 13 } },
+                  }}
+                >
+                  <Pill color={b.c} to={b.to}>{b.t}</Pill>
+                </motion.div>
+              ))}
+            </motion.div>
           </>
         )}
 
