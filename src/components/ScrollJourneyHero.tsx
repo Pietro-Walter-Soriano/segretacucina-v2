@@ -155,12 +155,18 @@ export default function ScrollJourneyHero() {
 
     enterFn.current = () => {
       if (entered) return;
-      // auto-play fluido: assicura che TUTTI i frame del clip2 siano caricati
-      if (loadedCount >= FRAME_COUNT) { startAutoplay(); return; }
+      // basta un piccolo buffer di frame del clip2 (il resto carica durante
+      // l'auto-play); attesa massima ~0.5s -> ingresso quasi immediato.
+      const BUFFER = Math.min(FRAME_COUNT, GATE + 70);
+      if (loadedCount >= BUFFER) { startAutoplay(); return; }
       setWaiting(true);
+      const t0 = Date.now();
       const w = window.setInterval(() => {
-        if (loadedCount >= FRAME_COUNT) { window.clearInterval(w); startAutoplay(); }
-      }, 80);
+        if (loadedCount >= BUFFER || Date.now() - t0 > 500) {
+          window.clearInterval(w);
+          startAutoplay();
+        }
+      }, 50);
     };
 
     return () => {
