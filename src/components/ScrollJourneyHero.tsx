@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { motion } from "motion/react";
 import gsap from "gsap";
 import { Pill } from "./ui";
 
@@ -188,9 +189,30 @@ export default function ScrollJourneyHero() {
 
         {phase === "arrived" && (
           <>
-            <div className="absolute left-1/2 top-[12%] z-10 -translate-x-1/2 text-center font-display text-7xl md:text-8xl text-giallo drop-shadow-[3px_4px_0_rgba(0,0,0,0.6)]">
-              Benvenuti!
-            </div>
+            {/* insegna di legno che cala dall'alto e dondola */}
+            <motion.div
+              className="absolute left-1/2 top-2 z-10 -translate-x-1/2"
+              initial={{ y: -380, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 120, damping: 8, delay: 0.15 }}
+            >
+              <motion.div
+                style={{ transformOrigin: "50% 4px" }}
+                animate={{ rotate: [-2.6, 2.6, -2.6] }}
+                transition={{ duration: 4.5, ease: "easeInOut", repeat: Infinity }}
+              >
+                <svg viewBox="0 0 200 58" className="mx-auto block w-44 h-12" aria-hidden="true">
+                  <circle cx="100" cy="6" r="5" fill="#5c3d22" />
+                  <path d="M100 8 L46 54 M100 8 L154 54" stroke="#7a4a23" strokeWidth="5" strokeLinecap="round" fill="none" />
+                </svg>
+                <div className="legno-sign doodle-border -mt-2 px-8 py-3 md:px-10 md:py-4">
+                  <span className="font-display text-5xl md:text-7xl text-bianco drop-shadow-[2px_3px_0_rgba(0,0,0,0.45)]">
+                    Benvenuti!
+                  </span>
+                </div>
+              </motion.div>
+            </motion.div>
+
             <div className="absolute inset-x-0 bottom-[14%] z-10 flex flex-wrap items-center justify-center gap-4 px-4">
               <Pill color="corallo" to="/prenota">Prenota</Pill>
               <Pill color="azzurro" to="/eventi">Eventi</Pill>

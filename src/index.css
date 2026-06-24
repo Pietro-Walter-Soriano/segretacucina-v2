@@ -50,6 +50,20 @@
   border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
 }
 
+/* Insegna di legno disegnata (per "Benvenuti" appeso) */
+@utility legno-sign {
+  display: inline-block;
+  background-color: #a86f43;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.1) 0 2px, transparent 2px 13px),
+    linear-gradient(to bottom, #b9824f, #97653b);
+  border: 4px solid #5c3d22;
+  box-shadow:
+    inset 0 3px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.18),
+    4px 7px 0 rgba(0, 0, 0, 0.3);
+}
+
 /* Legno ESTIVO "disegnato": assi color miele chiare (al posto del marrone invernale) */
 @utility wood-summer {
   background-color: #d6a05f;
