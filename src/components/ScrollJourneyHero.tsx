@@ -3,34 +3,42 @@ import gsap from "gsap";
 import { Pill } from "./ui";
 
 const FRAME_COUNT = 407;
-const GATE = 191; // ultimo frame del clip1 (arrivo al cancello)
+const GATE = 191; // ultimo frame del clip1 (cancello)
 const LAST = FRAME_COUNT - 1;
-const RUNWAY = GATE * 16; // px di scroll per l'avvicinamento
+const RUNWAY = GATE * 16;
 const frameSrc = (i: number) => `/journey/f_${String(i + 1).padStart(3, "0")}.webp`;
 
+const hasEntered = () => {
+  try { return sessionStorage.getItem("seg_entered") === "1"; } catch { return false; }
+};
+
 /**
- * Hero "scroll journey":
- *  - canvas FISSO a tutto schermo (niente pin: nessuno "sgancio"/striscia marrone)
- *  - uno spacer dà la distanza di scroll dell'avvicinamento (clip1, fino al cancello)
- *  - al cancello compare "Entra" -> auto-play del clip2 fino al finale
- *  - finale: "Benvenuti" + bottoni (Prenota/Eventi/Info -> pagine)
+ * Hero scroll-journey:
+ *  - canvas FISSO a tutto schermo + spacer per lo scroll dell'avvicinamento
+ *  - al cancello "Entra" -> (attende il caricamento del clip2) -> auto-play fino al finale
+ *  - finale: "Benvenuti" + bottoni verso le pagine
+ *  - se l'utente è GIÀ entrato (ritorno da una pagina), si parte direttamente dal
+ *    finale (ultimo frame del clip2), senza rifare il viaggio.
  */
 export default function ScrollJourneyHero() {
+  const enteredInit = hasEntered();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const enterFn = useRef<() => void>(() => {});
   const [ready, setReady] = useState(false);
   const [atGate, setAtGate] = useState(false);
-  const [phase, setPhase] = useState<"approach" | "entering" | "arrived">("approach");
-  const [spacer, setSpacer] = useState(RUNWAY + 900);
+  const [waiting, setWaiting] = useState(false);
+  const [phase, setPhase] = useState<"approach" | "entering" | "arrived">(enteredInit ? "arrived" : "approach");
+  const [spacer, setSpacer] = useState(enteredInit ? 0 : RUNWAY + 900);
 
   useEffect(() => {
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const images: HTMLImageElement[] = new Array(FRAME_COUNT);
-    let current = 0;
-    let target = 0;
-    let entered = false;
+    let current = enteredInit ? LAST : 0;
+    let target = current;
+    let entered = enteredInit;
+    let loadedCount = 0;
     let raf = 0;
 
     const isReady = (im?: HTMLImageElement) => !!(im && im.complete && im.naturalWidth);
@@ -45,6 +53,7 @@ export default function ScrollJourneyHero() {
       }
       const im = images[i];
       const cw = canvas.width, ch = canvas.height;
+      if (!cw || !ch) return;
       const s = Math.max(cw / im.naturalWidth, ch / im.naturalHeight);
       const w = im.naturalWidth * s, h = im.naturalHeight * s;
       ctx.drawImage(im, (cw - w) / 2, (ch - h) / 2, w, h);
@@ -56,19 +65,28 @@ export default function ScrollJourneyHero() {
       canvas.height = Math.floor(h * dpr);
       draw(current);
     };
+    requestAnimationFrame(fit);
 
-    // ---- preload sequenziale a finestra ----
-    const CONCURRENCY = 10;
-    let loaded = 0, nextToLoad = 0;
+    // ordine di preload: se si rientra, prima l'ultimo frame (finale subito); poi clip2; poi clip1
+    const order: number[] = [];
+    if (enteredInit) {
+      order.push(LAST);
+      for (let i = GATE; i < LAST; i++) order.push(i);
+      for (let i = 0; i < GATE; i++) order.push(i);
+    } else {
+      for (let i = 0; i < FRAME_COUNT; i++) order.push(i);
+    }
+    let oi = 0;
     const loadNext = () => {
-      if (nextToLoad >= FRAME_COUNT) return;
-      const i = nextToLoad++;
+      if (oi >= order.length) return;
+      const i = order[oi++];
       const im = new Image();
       images[i] = im;
       const done = () => {
-        loaded++;
-        if (i === 0) fit();
-        if (loaded === Math.min(30, FRAME_COUNT)) setReady(true);
+        loadedCount++;
+        if (!canvas.width) fit();
+        if (enteredInit) { if (isReady(images[LAST])) setReady(true); }
+        else if (loadedCount >= Math.min(30, FRAME_COUNT)) setReady(true);
         draw(current);
         loadNext();
       };
@@ -76,9 +94,17 @@ export default function ScrollJourneyHero() {
       im.onerror = done;
       im.src = frameSrc(i);
     };
-    for (let c = 0; c < CONCURRENCY; c++) loadNext();
+    for (let c = 0; c < 10; c++) loadNext();
 
-    // ---- loop di rendering (lerp = scrub morbido) ----
+    const onResizeBase = () => fit();
+    window.addEventListener("resize", onResizeBase);
+
+    // ===== modalità "già entrato": solo finale statico =====
+    if (entered) {
+      return () => { window.removeEventListener("resize", onResizeBase); };
+    }
+
+    // ===== modalità journey (avvicinamento) =====
     const tick = () => {
       if (!entered) {
         current += (target - current) * 0.16;
@@ -99,11 +125,10 @@ export default function ScrollJourneyHero() {
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
 
-    // ---- "Entra": auto-play del clip2 ----
-    enterFn.current = () => {
-      if (entered) return;
+    const startAutoplay = () => {
       entered = true;
       setAtGate(false);
+      setWaiting(false);
       setPhase("entering");
       document.body.style.overflow = "hidden";
       const av = { f: current };
@@ -112,14 +137,28 @@ export default function ScrollJourneyHero() {
         duration: 2.8,
         ease: "power1.inOut",
         onUpdate: () => { current = av.f; draw(current); },
-        onComplete: () => { current = LAST; draw(LAST); setPhase("arrived"); },
+        onComplete: () => {
+          current = LAST; draw(LAST); setPhase("arrived");
+          try { sessionStorage.setItem("seg_entered", "1"); } catch { /* noop */ }
+        },
       });
+    };
+
+    enterFn.current = () => {
+      if (entered) return;
+      // auto-play fluido: assicura che TUTTI i frame del clip2 siano caricati
+      if (loadedCount >= FRAME_COUNT) { startAutoplay(); return; }
+      setWaiting(true);
+      const w = window.setInterval(() => {
+        if (loadedCount >= FRAME_COUNT) { window.clearInterval(w); startAutoplay(); }
+      }, 80);
     };
 
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
+      window.removeEventListener("resize", onResizeBase);
       document.body.style.overflow = "";
     };
   }, []);
@@ -131,13 +170,13 @@ export default function ScrollJourneyHero() {
 
         <img src="/logo.png" alt="SeGreta" className="absolute top-4 left-4 z-20 h-12 w-auto drop-shadow" />
 
-        {phase === "approach" && !atGate && ready && (
+        {phase === "approach" && !atGate && ready && !waiting && (
           <div className="absolute bottom-10 left-1/2 z-10 -translate-x-1/2 animate-bounce">
             <div className="h-5 w-5 rotate-45 border-b-4 border-r-4 border-bianco/90" />
           </div>
         )}
 
-        {phase === "approach" && atGate && (
+        {phase === "approach" && atGate && !waiting && (
           <div className="absolute inset-0 z-10 flex items-end justify-center pb-24">
             <button onClick={() => enterFn.current()} className="appearance-none border-0 bg-transparent p-0">
               <span className="inline-block font-hand text-3xl px-12 py-3 rounded-full border-4 border-blu-scuro bg-giallo text-blu-scuro shadow-[3px_5px_0_rgba(74,51,32,0.9)] transition-transform hover:scale-105 active:scale-95">
@@ -160,15 +199,14 @@ export default function ScrollJourneyHero() {
           </>
         )}
 
-        {!ready && (
+        {(!ready || waiting) && (
           <div className="absolute inset-0 z-30 grid place-items-center bg-blu-scuro">
-            <span className="font-hand text-2xl text-giallo">carico il lido…</span>
+            <span className="font-hand text-2xl text-giallo">{waiting ? "si entra…" : "carico il lido…"}</span>
           </div>
         )}
       </div>
 
-      {/* spacer: dà la distanza di scroll dell'avvicinamento */}
-      <div aria-hidden style={{ height: spacer }} />
+      {phase === "approach" && <div aria-hidden style={{ height: spacer }} />}
     </>
   );
 }
