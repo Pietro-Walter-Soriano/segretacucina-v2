@@ -3,8 +3,8 @@ import { motion } from "motion/react";
 import gsap from "gsap";
 import { Pill } from "./ui";
 
-const FRAME_COUNT = 210;
-const GATE = 119; // frame in cui si arriva al cancello "SeGreta"
+const FRAME_COUNT = 192;
+const GATE = 96; // frame in cui si arriva al cancello "SeGreta" (video gemini 2, 1080×1920 nativo)
 const LAST = FRAME_COUNT - 1;
 const RUNWAY = GATE * 16;
 const frameSrc = (i: number) => `/journey/f_${String(i + 1).padStart(3, "0")}.webp`;
